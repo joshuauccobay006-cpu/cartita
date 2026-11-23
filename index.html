@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Para Karla</title>
+  <style>
+    :root {
+      --bg-color: #f6edf0;
+      --env-main: #f28b82;
+      --env-dark: #e2736a;
+      --env-light: #f6a59e;
+      --btn-open: #e55b5b;
+      --btn-close: #b85d64;
+      --text-main: #2d2424;
+      --text-soft: #5c4949;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--bg-color);
+      font-family: 'Georgia', serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px 48px;
+      color: var(--text-main);
+    }
+
+    .scene {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 36px;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    /* Sobre animado */
+    .envelope-wrapper {
+      position: relative;
+      width: 300px;
+      height: 190px;
+      margin-top: 70px;
+      perspective: 900px;
+    }
+
+    .envelope {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--env-main);
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+    }
+
+    /* Solapa superior */
+    .flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-top: 105px solid var(--env-light);
+      transform-origin: top center;
+      transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.65s;
+      z-index: 4;
+    }
+
+    .envelope-wrapper.open .flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    /* Lados y bolsillo frontal del sobre */
+    .pocket-left {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-top: 95px solid transparent;
+      border-bottom: 95px solid transparent;
+      border-left: 155px solid var(--env-dark);
+      z-index: 3;
+    }
+
+    .pocket-right {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-top: 95px solid transparent;
+      border-bottom: 95px solid transparent;
+      border-right: 155px solid var(--env-dark);
+      z-index: 3;
+    }
+
+    .pocket-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-bottom: 105px solid var(--env-main);
+      z-index: 3;
+    }
+
+    /* Carta que sube al abrir */
+    .letter {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 8px;
+      height: 170px;
+      background: #fffdfb;
+      border-radius: 6px;
+      padding: 18px 16px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      z-index: 2;
+      transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s ease;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .envelope-wrapper.open .letter {
+      transform: translateY(-125px);
+      z-index: 5;
+    }
+
+    .letter-preview-title {
+      font-size: 1rem;
+      color: #c94a4a;
+      margin-bottom: 6px;
+    }
+
+    .letter-preview-sub {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      line-height: 1.4;
+    }
+
+    /* Corazón flotante */
+    .heart {
+      position: absolute;
+      top: 45px;
+      left: 50%;
+      width: 34px;
+      height: 34px;
+      background: #e63946;
+      transform: translateX(-50%) rotate(-45deg) scale(0.6);
+      opacity: 0;
+      transition: all 0.6s ease 0.2s;
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      background: #e63946;
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -17px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: 17px;
+      top: 0;
+    }
+
+    .envelope-wrapper.open .heart {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-145px) rotate(-45deg) scale(1);
+    }
+
+    /* Botones OPEN / CLOSE */
+    .controls {
+      display: flex;
+      gap: 14px;
+      margin-top: 8px;
+      z-index: 10;
+    }
+
+    button {
+      border: none;
+      padding: 10px 24px;
+      font-size: 0.85rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.15s ease, opacity 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      opacity: 0.92;
+    }
+
+    #openBtn {
+      background-color: var(--btn-open);
+    }
+
+    #closeBtn {
+      background-color: var(--btn-close);
+    }
+
+    /* Panel desplegable con el mensaje completo para Karla y apartado de música */
+    .full-card {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 26px 22px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      border: 1px solid #f0dfe3;
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .full-card.visible {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card-header {
+      font-size: 1.25rem;
+      color: #b83b46;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #f3e5e8;
+      padding-bottom: 8px;
+    }
+
+    .message-body p {
+      font-size: 0.98rem;
+      line-height: 1.72;
+      color: var(--text-main);
+      margin-bottom: 14px;
+    }
+
+    /* Apartado de música */
+    .music-section {
+      margin-top: 20px;
+      background: #fdf5f7;
+      border: 1px solid #f2d5dc;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .music-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #9e2a36;
+      margin-bottom: 6px;
+    }
+
+    .music-track-info {
+      font-size: 0.88rem;
+      color: var(--text-soft);
+      margin-bottom: 12px;
+    }
+
+    audio {
+      width: 100%;
+      height: 38px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <div class="envelope-wrapper" id="envelope">
+      <div class="heart"></div>
+      <div class="flap"></div>
+
+      <div class="letter">
+        <div class="letter-preview-title">Para Karla</div>
+        <div class="letter-preview-sub">
+          Te amo tanto... y no hay un solo día en que no me sienta mal por haberte perdido por mi culpa.
+        </div>
+      </div>
+
+      <div class="pocket-left"></div>
+      <div class="pocket-right"></div>
+      <div class="pocket-bottom"></div>
+    </div>
+
+    <div class="controls">
+      <button id="openBtn" type="button">OPEN</button>
+      <button id="closeBtn" type="button">CLOSE</button>
+    </div>
+
+    <section class="full-card" id="fullCard" aria-label="Mensaje para Karla y música">
+      <h2 class="card-header">Para ti, Karla</h2>
+
+      <div class="message-body">
+        <p>
+         Qué felicidad tan grande verte ganar. Admiro muchísimo tu talento, tu disciplina y la persona que eres. Gracias por dejarme acompañarte y celebrar contigo este triunfo tan merecido
+
+Karla, quiero que sepas que te amo con todo lo que soy. Aunque hoy las cosas no estén como antes, mi cariño por ti sigue intacto y cada pensamiento mío lleva tu nombre.
+        </p>
+        <p>
+          No hay un solo día en que no me sienta mal porqué te perdí yo. Me duele cargar con el peso de mis errores y saber que por mi culpa dejé ir a la persona que más quería.
+        </p>
+        <p>
+          Perdón por todo lo que te hice pasar. Solo necesitaba que supieras cuánto te amo y cuánto me duele haberte perdido.
+        </p>
+      </div>
+
+      <div class="music-section">
+        <div class="music-title">Una canción para ti</div>
+        <div class="music-track-info" id="trackLabel">Bolero del corazón</div>
+
+        <audio id="audioPlayer" controls preload="metadata">
+          <source src="bolero del corazon.mp3" type="audio/mpeg" />
+          Tu navegador no soporta el reproductor de audio.
+        </audio>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const envelope = document.getElementById('envelope');
+    const openBtn = document.getElementById('openBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    const fullCard = document.getElementById('fullCard');
+    const audioPlayer = document.getElementById('audioPlayer');
+
+    openBtn.addEventListener('click', () => {
+      envelope.classList.add('open');
+      fullCard.classList.add('visible');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      envelope.classList.remove('open');
+      fullCard.classList.remove('visible');
+      audioPlayer.pause();
+    });
+  </script>
+</body>
+</html>
